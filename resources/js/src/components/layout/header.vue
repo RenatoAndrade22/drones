@@ -5,7 +5,7 @@
             <header class="header navbar navbar-expand-sm">
                 <ul class="navbar-item theme-brand flex-row text-center">
                     <li class="nav-item theme-logo">
-                        <img src="@/assets/images/LOGO_DJI.png" class="navbar-logo" alt="logo" />
+                        <img src="@/assets/images/LOGO_BOLSONARO.png" class="navbar-logo" alt="logo" />
                     </li>
                 </ul>
                 <div class="d-none horizontal-menu">

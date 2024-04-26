@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use DateTime;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -9,13 +10,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Product extends Model
 {
     use HasFactory;
-
+ 
+    
     protected $fillable = [
         'name',
-        'model_id'
+        'model_id',
+        'warranty_date'
     ];
 
-    protected $appends = ['model_name', 'brand_name'];
+    protected $appends = ['model_name', 'brand_name', 'warranty_date_format'];
 
     public function model() : BelongsTo
     {
@@ -30,6 +33,12 @@ class Product extends Model
     public function getBrandNameAttribute()
     {
         return $this->model->brand_name;
+    }
+
+    public function getWarrantyDateFormatAttribute()
+    {
+        $date = DateTime::createFromFormat('Y-m-d', $this->warranty_date);
+        return $date->format('d/m/Y');
     }
     
 }

@@ -52,6 +52,15 @@
                                             </div>
                                         </b-form-row>
                                         
+                                        <b-form-row>
+                                            <div class="col-md-12 mb-4">
+                                                <label for="fullName">Lote</label>
+                                                <b-input type="text" id="lot" v-model="form.lot" placeholder="" :class="[submit_form ? (form.lot ? 'is-valid' : 'is-invalid') : '']"></b-input>
+                                                
+                                                <b-form-invalid-feedback :class="{'d-block' : submit_form && !form.lot}">Informe o lote do modelo</b-form-invalid-feedback>
+                                            </div>
+                                        </b-form-row>
+
                                         <b-button :disabled="loadding" type="submit" variant="primary" class="mt-2">
                                             <span v-if="in_edit">Atualizar</span>
                                             <span v-if="!in_edit">Cadastrar</span>
@@ -199,6 +208,7 @@
                     year: null,
                     brand_id: null,
                     brand: null,
+                    lot: null,
                 }
             },
 
@@ -283,6 +293,9 @@
                 if(!this.form.brand)
                     i = false
 
+                if(!this.form.lot)
+                    i = false
+
                 return i
             },
 
@@ -319,6 +332,7 @@
                 this.columns = [
                     { key: 'name', label: 'Nome' },
                     { key: 'brand_name', label: 'Marca' },
+                    { key: 'lot', label: 'Lote' },
                     { key: 'serial_number', label: 'Numero de série' },
                     { key: 'year', label: 'Ano' },
                     { key: 'action', label: 'Ações', class: 'actions text-center' }

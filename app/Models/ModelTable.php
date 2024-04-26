@@ -17,7 +17,8 @@ class ModelTable extends Model
         'name',
         'serial_number',
         'year',
-        'brand_id'
+        'brand_id',
+        'lot'
     ];
 
     protected $appends = ['brand_name'];

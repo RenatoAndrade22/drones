@@ -1,6 +1,8 @@
 <template>
     <div class="content-home" style="background: url('/images/home/FUNDO_1.jpg');">
-        <div class="logo-home">
+        
+             
+<div class="logo-home">
             <img src="/images/home/LOGO_BOLSONARO.png" alt="">
         </div>
         <div class="content-form">
@@ -19,6 +21,7 @@
                 <template v-if="product">
                     <div style="text-align: center;">
                         <p @click="product = null" style="cursor: pointer;">Buscar outro</p>
+                        <h4 v-if="this.product">{{ this.product.name }}</h4>
                         <button @click="downloadPdf" type="submit" class="btn btn-primary">Baixar PDF</button>
                     </div>
                     
@@ -26,31 +29,55 @@
                 
             </div>
         </div>
+        
+        
+                                <!--
+                                    
+                                -->
         <VueHtml2pdf
-                :show-layout="false"
-                :float-layout="true"
-                :enable-download="true"
-                :preview-modal="true"
-                :paginate-elements-by-height="1400"
-                filename="myPDF"
-                :pdf-quality="2"
-                :manual-pagination="false"
-                pdf-format="a4"
-                pdf-orientation="landscape"
-                pdf-content-width="100%"
-                ref="html2Pdf"
-            >
+                                :show-layout="false"
+                                :float-layout="true"
+                                :enable-download="true"
+                                :preview-modal="true"
+                                :paginate-elements-by-height="1400"
+                                filename="myPDF"
+                                :pdf-quality="2"
+                                :manual-pagination="false"
+                                pdf-format="a4"
+                                pdf-orientation="landscape"
+                                pdf-content-width="100%"
+                                ref="html2Pdf"
+        >
             <section slot="pdf-content">
-                <div v-if="product" style="text-align: center;">
-                    <h1>{{ product.name }}</h1>
-                    <p>
-                        <b>Marca:</b> {{ product.brand_name }} <br />
-                        <b>Modelo:</b> {{ product.model_name }} <br />
-                    </p>
+                <div v-if="product" style="background: #000;" >
+                    <div class="row mt-5">
+                        <div class="col-xl-6 col-lg-6 col-sm-6 layout-spacing">
+                            <div class="m-5">
+                                
+                                <img src="/images/home/LOGO_BOLSONARO.png" style="width: 444px;" alt="">
+
+                                <h1 class="mt-3" style="font-size: 35px !important; color: #fff;">{{ product.name }}</h1>
+                                <p style="color: #fff;">
+                                    <b>Marca:</b> {{ product.brand_name }} <br />
+                                    <b>Modelo:</b> {{ product.model_name }} <br />
+                                    <b>Lote:</b> {{ product.model.lot }} <br />
+                                    <b>Data de garantia:</b> {{ product.warranty_date_format }} <br />
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-xl-6 col-lg-6 col-sm-6 layout-spacing">
+                            <div class="mt-5">
+                                <img src="@/assets/images/drone.webp" alt="" style="width: 150%;">
+                            </div>
+                        </div>
+                    </div>
+                    
                 </div>
-                
-            </section>
+            
+                    </section>
         </VueHtml2pdf> 
+              
+            
     </div>
 </template>
 <script>
@@ -67,6 +94,14 @@
                 serial_number: null,
                 error: false,
                 product: null
+            }
+        },
+
+        mounted() {
+            let serial_number = this.$route.params.pathMatch
+            if(serial_number){
+                this.serial_number = serial_number
+                this.search()
             }
         },
 

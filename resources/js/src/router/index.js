@@ -22,6 +22,7 @@ const routes = [
     { path: '/painel/modelos', name: 'Model', component: Model },
     { path: '/painel/marcas', name: 'Brand', component: Brand },
     { path: '/', name: 'Home', component: Home, meta: { layout: 'auth' } },
+    { path: '/*', name: 'Home-pdf', component: Home, meta: { layout: 'auth' } },
 
     {
         path: '/index2',
@@ -548,7 +549,8 @@ const routes = [
         path: '/tables/miscellaneous',
         name: 'miscellaneous',
         component: () => import(/* webpackChunkName: "tables-miscellaneous" */ '../views/tables/miscellaneous.vue')
-    }
+    },
+
 ];
 
 const router = new VueRouter({

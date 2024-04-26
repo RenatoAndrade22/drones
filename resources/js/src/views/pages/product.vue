@@ -14,12 +14,16 @@
                                 
                                 <b-form class="simple-example" novalidate @submit.stop.prevent="record">
                                         <b-form-row>
-                                            <div class="col-md-6 mb-4">
+                                            <div class="col-md-12 mb-4">
                                                 <label for="fullName">Nome do drone</label>
                                                 <b-input id="fullName" v-model="form.name" placeholder="" :class="[submit_form ? (form.name ? 'is-valid' : 'is-invalid') : '']"></b-input>
                                                 
                                                 <b-form-invalid-feedback :class="{'d-block' : submit_form && !form.name}">Informe o nome do drone</b-form-invalid-feedback>
                                             </div>
+                                            
+                                        </b-form-row>
+
+                                        <b-form-row>
                                             <div class="col-md-6 mb-4">
                                                 <label for="fullName">Modelo</label>
 
@@ -36,7 +40,36 @@
                                                 
                                                 <b-form-invalid-feedback :class="{'d-block' : submit_form && !form.model}">Informe a marca</b-form-invalid-feedback>
                                             </div>
+                                            <div class="col-md-6 mb-4">
+                                                <label for="fullName">Data da garantia</label>
+                                                <b-input id="fullName" v-mask="'##/##/####'" placeholder="__/__/____" v-model="form.warranty_date" :class="[submit_form ? (form.warranty_date ? 'is-valid' : 'is-invalid') : '']"></b-input>
+                                                
+                                                <b-form-invalid-feedback :class="{'d-block' : submit_form && !form.warranty_date}">Informe a garantia do drone</b-form-invalid-feedback>
+                                            </div>
                                         </b-form-row>
+
+                                        <!--
+                                        <b-form-row>
+                                            <div class="col-md-12 mb-4">
+                                                <label for="fullName">Fotos</label>
+                                                <div class="invoice-detail-title">
+
+                                                    <div class="invoice-logo">
+                                                        <div class="upload pr-md-4">
+                                                            <input ref="fl_profile" type="file" class="d-none" accept="image/*" @change="change_file" />
+                                                            <img v-if="selected_file" :src="selected_file ? selected_file : require('@/assets/images/user-profile.jpeg')" alt="profile" class="profile-preview" @click="$refs.fl_profile.click()" />
+                                                            <div v-else class="profile-preview upload-preview" @click="$refs.fl_profile.click()">
+                                                                <div>
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-upload-cloud"><polyline points="16 16 12 12 8 16"></polyline><line x1="12" y1="12" x2="12" y2="21"></line><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"></path><polyline points="16 16 12 12 8 16"></polyline></svg>
+                                                                </div>
+                                                                <div class="mt-2">Clique para fazer upload da foto.</div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </b-form-row>
+                                        -->
                                         
                                         <b-button :disabled="loadding" type="submit" variant="primary" class="mt-2">
                                             <span v-if="in_edit">Atualizar</span>
@@ -137,6 +170,9 @@
 </template>
 
 <script>
+    import Vue from 'vue';
+    import VueMask from 'v-mask';
+    Vue.use(VueMask);
     import axios from 'axios';
     import Multiselect from 'vue-multiselect'
     import 'vue-multiselect/dist/vue-multiselect.min.css';
@@ -159,7 +195,7 @@
                 meta: {},
                 models: [],
                 form_error: false,
-
+                selected_file: null,
             }
         },
         watch: {
@@ -179,6 +215,10 @@
 
         methods: {
 
+            change_file(event) {
+                this.selected_file = URL.createObjectURL(event.target.files[0]);
+            },
+
             resetForm(){
                 return {
                     name: null,
@@ -186,6 +226,7 @@
                     serial_number_token: null,
                     model_id: null,
                     model: null,
+                    warranty_date: null
                 }
             },
 
@@ -198,6 +239,7 @@
                 this.in_edit = true
                 this.$bvModal.show('exampleModalCenter')
                 this.form = JSON.parse(JSON.stringify(item))
+                this.form.warranty_date = this.form.warranty_date_format
             },
 
             record(){
@@ -263,6 +305,9 @@
                 if(!this.form.model)
                     i = false
 
+                if(!this.form.warranty_date)
+                    i = false
+                    
                 return i
             },
 
@@ -300,7 +345,7 @@
                     { key: 'name', label: 'Nome' },
                     { key: 'brand_name', label: 'Marca' },
                     { key: 'model_name', label: 'Modelo' },
-                    { key: 'serial_number', label: 'Número de série' },
+                    { key: 'warranty_date_format', label: 'Garantia' },
                     { key: 'serial_number_token', label: 'Número de série token' },
                     { key: 'action', label: 'Ações', class: 'actions text-center' }
                 ];

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ProductRequest;
 use App\Models\Product;
+use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -30,6 +31,10 @@ class ProductController extends Controller
 
             $product = new Product();
             $product->fill($request->all());
+
+            $date = DateTime::createFromFormat('d/m/Y', $request->get('warranty_date'));
+            $product->warranty_date = $date->format('Y-m-d');
+
             $product->save();
 
             // CRIA O SERIAL NUMBER
@@ -109,6 +114,8 @@ class ProductController extends Controller
 
         if($product){
             $product->fill($request->all());
+            $date = DateTime::createFromFormat('d/m/Y', $request->get('warranty_date'));
+            $product->warranty_date = $date->format('Y-m-d');
             $product->save();
         }
         
