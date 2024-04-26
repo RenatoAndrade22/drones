@@ -37,8 +37,11 @@ class Product extends Model
 
     public function getWarrantyDateFormatAttribute()
     {
-        $date = DateTime::createFromFormat('Y-m-d', $this->warranty_date);
-        return $date->format('d/m/Y');
+        if($this->warranty_date){
+            $date = DateTime::createFromFormat('Y-m-d', $this->warranty_date);
+            return $date->format('d/m/Y');
+        }
+        return '';
     }
     
 }
