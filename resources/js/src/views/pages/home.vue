@@ -50,14 +50,14 @@
         >
             <section slot="pdf-content" style="background: #000; width:1100px;">
                 <div v-if="product" style="background: #000; width:1100px; float:left; background:#000;">
-                    <div class=" mt-5">
+                    <div class=" mt-3">
                         <div class="layout-spacing"  style="width: 50%; float:left; background:#000">
-                            <div class="m-5">
+                            <div class="m-4">
                                         
                                 <img src="/images/home/LOGO_BOLSONARO.png" style="width: 444px;" alt="">
         
-                                <h1 class="mt-3" style="font-size: 35px !important; color: #fff;">{{ product.name }}</h1>
-                                <p style="color: #fff;">
+                                <h1 class="mt-4" style="font-size: 40px !important; color: #fff; margin-left:15px;">{{ product.name }}</h1>
+                                <p style="color: #fff; font-size:21px; margin-left:15px;">
                                     <b>Marca:</b> {{ product.brand_name }} <br />
                                     <b>Modelo:</b> {{ product.model_name }} <br />
                                     <b>Lote:</b> {{ product.model.lot }} <br />
