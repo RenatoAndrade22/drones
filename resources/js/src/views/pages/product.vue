@@ -46,30 +46,59 @@
                                                 
                                                 <b-form-invalid-feedback :class="{'d-block' : submit_form && !form.warranty_date}">Informe a garantia do drone</b-form-invalid-feedback>
                                             </div>
+
+                                            <div class="col-md-12 mb-4">
+                                                <label for="description">Descrição</label>
+                                                <b-textarea v-model="form.description" placeholder="Descrição" rows="3"></b-textarea>
+                                            </div>
                                         </b-form-row>
 
-                                        <!--
+                                        
+
                                         <b-form-row>
                                             <div class="col-md-12 mb-4">
                                                 <label for="fullName">Fotos</label>
                                                 <div class="invoice-detail-title">
-
                                                     <div class="invoice-logo">
                                                         <div class="upload pr-md-4">
-                                                            <input ref="fl_profile" type="file" class="d-none" accept="image/*" @change="change_file" />
-                                                            <img v-if="selected_file" :src="selected_file ? selected_file : require('@/assets/images/user-profile.jpeg')" alt="profile" class="profile-preview" @click="$refs.fl_profile.click()" />
-                                                            <div v-else class="profile-preview upload-preview" @click="$refs.fl_profile.click()">
-                                                                <div>
-                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-upload-cloud"><polyline points="16 16 12 12 8 16"></polyline><line x1="12" y1="12" x2="12" y2="21"></line><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"></path><polyline points="16 16 12 12 8 16"></polyline></svg>
+
+                                                            <!-- Imagens já cadastradas -->
+                                                            <div v-if="form.images.length > 0" class="lista-fotos mb-4">
+                                                                <div v-for="(file, index) in form.images" :key="index" class="img-preview">
+                                                                    <span @click="deleteImageS3(file.id, index)" style="color:red;">x</span>
+                                                                    <img :src="file.url" alt="profile" class="img-thumbnail" />
                                                                 </div>
-                                                                <div class="mt-2">Clique para fazer upload da foto.</div>
+                                                            </div>
+
+                                                            <!-- Adicionado 'multiple' e alterado ref para 'fl_profiles' -->
+                                                            <input ref="fl_profiles" type="file" class="d-none" accept="image/*" multiple @change="changeFiles" />
+                                                            <!-- Imagens para upload -->
+                                                            <div v-if="selected_files.length > 0" class="lista-fotos mb-4">
+                                                                <div v-for="(file, index) in selected_files" :key="index" class="img-preview">
+                                                                    <span @click="deleteImage(index)" style="color:red;">x</span>
+                                                                    <img :src="file" alt="profile" class="img-thumbnail" />
+                                                                </div>
+                                                            </div>
+
+                                                            
+                                                            <div class="profile-preview upload-preview" @click="$refs.fl_profiles.click()">
+                                                                <div>
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-upload-cloud">
+                                                                        <polyline points="16 16 12 12 8 16"></polyline>
+                                                                        <line x1="12" y1="12" x2="12" y2="21"></line>
+                                                                        <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"></path>
+                                                                        <polyline points="16 16 12 12 8 16"></polyline>
+                                                                    </svg>
+                                                                </div>
+                                                                <div class="mt-2">Clique para fazer upload das fotos.</div>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </b-form-row>
-                                        -->
+                                        
+                                    
                                         
                                         <b-button :disabled="loadding" type="submit" variant="primary" class="mt-2">
                                             <span v-if="in_edit">Atualizar</span>
@@ -196,6 +225,8 @@
                 models: [],
                 form_error: false,
                 selected_file: null,
+                selected_files: [],
+                actual_files: []  
             }
         },
         watch: {
@@ -215,18 +246,47 @@
 
         methods: {
 
-            change_file(event) {
-                this.selected_file = URL.createObjectURL(event.target.files[0]);
+            deleteImage(index){
+                this.selected_files.splice(index, 1)
+                this.actual_files.splice(index, 1)
+            },
+
+            deleteImageS3(id, index){
+                axios.post('/api/produto-image-delete/'+id)
+                .then(response => {
+                    this.form.images.splice(index, 1)
+                })
+            },
+
+            changeFiles(event) {
+                const files = Array.from(event.target.files);
+                let filesUrl = files.map(file => {
+                    return URL.createObjectURL(file);
+                });
+
+                if(this.selected_files.length == 0){
+                    this.selected_files = filesUrl 
+                }else{
+                    this.selected_files.push(filesUrl) 
+                }
+
+                this.actual_files = files
             },
 
             resetForm(){
+
+                this.selected_files = []
+                this.actual_files = []  
+
                 return {
                     name: null,
+                    description: '',
                     serial_number: null,
                     serial_number_token: null,
                     model_id: null,
                     model: null,
-                    warranty_date: null
+                    warranty_date: null,
+                    images: []
                 }
             },
 
@@ -239,7 +299,7 @@
                 this.in_edit = true
                 this.$bvModal.show('exampleModalCenter')
                 this.form = JSON.parse(JSON.stringify(item))
-                this.form.warranty_date = this.form.warranty_date_format
+                this.form.warranty_date = this.form.warranty_date_format                
             },
 
             record(){
@@ -251,13 +311,31 @@
                     
                     this.form.model_id = this.form.model.id
 
+                    let formData = new FormData();
+
+                    // Adicionar todos os campos do formulário existente ao FormData
+                    for (const key in this.form) {
+                        if (this.form.hasOwnProperty(key)) {
+                            formData.append(key, this.form[key]);
+                        }
+                    }
+                        
+                    // Adicionar as imagens ao FormData
+                    this.actual_files.forEach((file, index) => {
+                        formData.append('files[]', file);
+                    })
+
                     if(this.in_edit){
 
-                        axios.put('/api/produto/'+this.form.id, this.form)
+                        axios.post('/api/produto-update/'+this.form.id, formData,{
+                            headers: {
+                                'Content-Type': 'multipart/form-data'
+                                }
+                            })
                         .then(response => {
+                            this.form = this.resetForm()
                             this.getProducts()
                             this.$bvModal.hide('exampleModalCenter')
-                            this.form = this.resetForm()
                             this.submit_form = false
                             this.is_edit = false
                             this.loadding = false
@@ -268,15 +346,21 @@
                             this.loadding = false
                             this.submit_form = false
                             this.form_error = false
-
                         });
 
                     }else{
-                        axios.post('/api/produto', this.form)
+
+                        axios.post('/api/produto', formData,
+                        {
+                            headers: {
+                                'Content-Type': 'multipart/form-data'
+                                }
+                            }
+                        )
                         .then(response => {
+                            this.form = this.resetForm()
                             this.getProducts()
                             this.$bvModal.hide('exampleModalCenter')
-                            this.form = this.resetForm()
                             this.submit_form = false
                             this.form_error = false
                             this.loadding = false
@@ -288,6 +372,7 @@
                             this.submit_form = false
                             this.form_error = true
                         });
+                        
                     }
                     
                 }else{
@@ -318,7 +403,6 @@
                 axios.get('/api/produto')
                 .then(response => {
                     // Manipular a resposta aqui
-                    console.log(response.data.data);
                     this.items = response.data.data;
                     this.bind_data()
                 })
@@ -412,3 +496,22 @@
         }
     };
 </script>
+
+<style>
+    .lista-fotos{
+        width: 100%;
+        float: left
+    }
+    .upload-preview{
+        width: 100%;
+        float: left
+    }
+    .img-preview{
+        float: left;
+        width: 120px;
+        margin-right: 15px;
+    }
+    .img-preview span{
+        cursor: pointer;
+    }
+</style>

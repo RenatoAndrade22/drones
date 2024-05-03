@@ -3,19 +3,21 @@
 namespace App\Models;
 
 use DateTime;
+use finfo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Product extends Model
 {
     use HasFactory;
- 
     
     protected $fillable = [
         'name',
         'model_id',
-        'warranty_date'
+        'warranty_date',
+        'description'
     ];
 
     protected $appends = ['model_name', 'brand_name', 'warranty_date_format'];
@@ -23,6 +25,11 @@ class Product extends Model
     public function model() : BelongsTo
     {
         return $this->belongsTo(ModelTable::class);
+    }
+
+    public function images() : HasMany
+    {
+        return $this->hasMany(Upload::class, 'item_id')->where('model', 'product');
     }
 
     public function getModelNameAttribute()

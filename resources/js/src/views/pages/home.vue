@@ -25,20 +25,18 @@
                         <button @click="downloadPdf" type="submit" class="btn btn-primary">Baixar PDF</button>
                     </div>
                 </template>
-                        
+
             </div>
         </div>
         
         
-
         
-
         <VueHtml2pdf
             :show-layout="false"
             :float-layout="true"
             :enable-download="true"
             :preview-modal="true"
-            :paginate-elements-by-height="500"
+            :paginate-elements-by-height="1100"
             filename="myPDF"
             :pdf-quality="2"
             :manual-pagination="false"
@@ -60,20 +58,37 @@
                                 <p style="color: #fff; font-size:21px; margin-left:15px;">
                                     <b>Marca:</b> {{ product.brand_name }} <br />
                                     <b>Modelo:</b> {{ product.model_name }} <br />
-                                    <b>Lote:</b> {{ product.model.lot }} <br />
+                                    <b>Lote:</b> {{ product.lot }} <br />
+                                  
                                     <b>Data de garantia:</b> {{ product.warranty_date_format }} <br />
+                                </p>
+        
+                                <p style="color: #fff; font-size:21px; margin-left:15px;">
+                                    {{ product.description }}
                                 </p>
                             </div>
                         </div>
-                        <div class="layout-spacing" style="width: 50%; float:left;">
+                        <div class="layout-spacing" style="width: 50%; float:left; position:relative;" >
                             <div class="mt-5">
-                                <img src="@/assets/images/drone.webp" alt="" style="width: 150%;">
+                                <img src="@/assets/images/drone.webp" alt="" class="bg-drone">                                        
+                            </div>
+                        </div>
+        
+                        <div class="images-drones">
+                            <div
+                                v-for="(p, i) in images_base" 
+                                :key="i" 
+                                v-if="images_base.length"
+                                class="img-single-drone"
+                            >
+                                <img :src="p.url" alt="drone" >                                        
                             </div>
                         </div>
                     </div>
                 </div>
             </section>
         </VueHtml2pdf> 
+        
     </div>
 </template>
 <script>
@@ -89,7 +104,14 @@
             return {
                 serial_number: null,
                 error: false,
-                product: null
+                product: {
+                    brand_name: null,
+                    model_name: null,
+                    lot: null,
+                    warranty_date_format: null,
+                    description: null
+                },
+                images_base: []
             }
         },
 
@@ -102,6 +124,8 @@
         },
 
         methods:{
+            
+            
             search(){
                 this.error = false
                 if(this.serial_number){
@@ -109,8 +133,11 @@
                     .then(response => {
 
                         if(response.data.data){
-                            this.product = response.data.data
-                            console.log('aq', this.product)
+                            this.product = response.data.data[0]
+                            if(response.data.data[0].images_base){
+                                this.images_base = response.data.data[0].images_base
+                            }
+                            console.log('base', this.images_base)
                         }
 
                     })
@@ -128,6 +155,10 @@
     }
 </script>
 <style>
+.bg-drone{
+    width: 150%;
+    position: absolute;
+}
 .content-home{
     width: 100%;
     height: 100vh;
@@ -158,6 +189,25 @@
     position: relative;
     background-color: #ffffff;
     border-radius: 20px;
+}
+
+.images-drones{
+    float:left;
+    width: 100%;
+    height: 200px;
+    padding-left: 40px;
+}
+
+.images-drones .img-single-drone{
+    float:left;
+    width: 230px;
+    height: 200px;
+    margin-right: 1%;
+}
+.images-drones .img-single-drone img{
+    float:left;
+    height: 100px;
+    width: 100%;
 }
 
 @media screen and (max-width: 650px) {

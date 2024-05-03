@@ -23,5 +23,9 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::resource('/marca', BrandController::class);
 Route::resource('/modelo', ModelController::class);
+
+Route::post('produto-update/{id}', [ProductController::class, 'update']);
+Route::post('produto-image-delete/{id}', [ProductController::class, 'destroyImage']);
 Route::resource('/produto', ProductController::class);
+
 Route::get('search-seral-number/{serial_number}', [ProductController::class, 'getProductBySerialNumber']);
