@@ -200,7 +200,11 @@ class ProductController extends Controller
 
     public function destroy($id)
     {
-        $product = Product::find($id);
+        $product = Product::query()->with('images')->where('id', $id)->first();
+
+        foreach ($product->images as $img) {
+            $this->destroyImage($img['id']);
+        }
 
         if($product){
             $product->delete();

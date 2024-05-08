@@ -22,7 +22,7 @@
 
                                         </div>
 
-                                        <b-input v-model="form.senha" :type="pwd_type" placeholder="Senha"></b-input>
+                                        <b-input v-model="form.password" :type="pwd_type" placeholder="Senha"></b-input>
 
                                     </div>
                                     <div class="d-sm-flex justify-content-between">
@@ -41,6 +41,8 @@
 </template>
 
 <script>
+    import axios from 'axios';
+
     import '@/assets/sass/authentication/auth-boxed.scss';
     export default {
         metaInfo: { title: 'Login' },
@@ -48,8 +50,8 @@
             return { 
 
                 form:{
-                    email: "teste@email.com",
-                    senha: "121545478"
+                    email: "admin@teste.com.br",
+                    password: "Adm147852"
                 },
 
                 pwd_type: 'password' 
@@ -63,7 +65,19 @@
             },
 
             login(){
-                this.$router.push({ name: 'Products' });
+
+                axios.post('/api/auth', this.form)
+                .then(resp => {
+
+                    localStorage.setItem('auth_token', resp.data.token);
+
+                    this.$router.push({ name: 'Products' });
+
+                })  
+                .catch(error => {
+                    // Lidar com erros aqui
+                    console.error(error);
+                });
 
             }
 

@@ -15,12 +15,12 @@ const routes = [
         path: '/painel/login',
         name: 'login',
         component: () => import(/* webpackChunkName: "auth-login" */ '../views/auth/login_boxed.vue'),
-        meta: { layout: 'auth' }
+        meta: { layout: 'auth', auth: false }
     },
 
-    { path: '/painel/produtos', name: 'Products', component: Product },
-    { path: '/painel/modelos', name: 'Model', component: Model },
-    { path: '/painel/marcas', name: 'Brand', component: Brand },
+    { path: '/painel/produtos', name: 'Products', component: Product,  meta: { auth: true } },
+    { path: '/painel/modelos', name: 'Model', component: Model,  meta: { auth: true } },
+    { path: '/painel/marcas', name: 'Brand', component: Brand,  meta: { auth: true } },
     { path: '/', name: 'Home', component: Home, meta: { layout: 'auth' } },
     { path: '/*', name: 'Home-pdf', component: Home, meta: { layout: 'auth' } },
 
@@ -572,6 +572,15 @@ router.beforeEach((to, from, next) => {
     } else {
         store.commit('setLayout', 'app');
     }
+    console.log('chegou aq', to.meta);
+
+    if(to.meta.auth){
+        var token = localStorage.getItem('auth_token');
+        if(!token){
+            router.push({ name: 'login' });
+        }
+    }
+
     next(true);
 });
 

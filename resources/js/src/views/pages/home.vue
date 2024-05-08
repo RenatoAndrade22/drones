@@ -8,7 +8,7 @@
         <div class="content-form">
             <div class="form-drone">
 
-                <template v-if="!product">
+                <template v-if="!product.brand_name">
                     <h5>Buscar Drone</h5>
                     <div class="field-wrapper input">
                         <input type="text" v-model="serial_number" placeholder="número de série" class="form-control">
@@ -18,7 +18,7 @@
                     </div>
                 </template>
 
-                <template v-if="product">
+                <template v-if="product.brand_name">
                     <div style="text-align: center;">
                         <p @click="product = null" style="cursor: pointer;">Buscar outro</p>
                         <h4 v-if="this.product">{{ this.product.name }}</h4>
@@ -47,7 +47,7 @@
             style="background: #000;"
         >
             <section slot="pdf-content" style="background: #000; width:1100px;">
-                <div v-if="product" style="background: #000; width:1100px; float:left; background:#000;">
+                <div v-if="product.brand_name" style="background: #000; width:1100px; float:left; background:#000;">
                     <div class=" mt-3">
                         <div class="layout-spacing"  style="width: 50%; float:left; background:#000">
                             <div class="m-4">
@@ -58,7 +58,7 @@
                                 <p style="color: #fff; font-size:21px; margin-left:15px;">
                                     <b>Marca:</b> {{ product.brand_name }} <br />
                                     <b>Modelo:</b> {{ product.model_name }} <br />
-                                    <b>Lote:</b> {{ product.lot }} <br />
+                                    <b>Lote:</b> {{ product.model.lot }} <br />
                                   
                                     <b>Data de garantia:</b> {{ product.warranty_date_format }} <br />
                                 </p>
@@ -109,7 +109,10 @@
                     model_name: null,
                     lot: null,
                     warranty_date_format: null,
-                    description: null
+                    description: null,
+                    model:{
+                        lot: null
+                    }
                 },
                 images_base: []
             }

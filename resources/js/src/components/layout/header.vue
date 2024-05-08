@@ -31,7 +31,7 @@
                 
 
                 <div class="navbar-item flex-row ml-md-auto">
-                    <p style="color: #ffffff;margin: 0;margin-right: 25px;"><a href="/" style="color: #ffffff;">Sair</a></p>
+                    <p @click="logout" style="color: #ffffff;margin: 0;margin-right: 25px; cursor:pointer;" ><a style="color: #ffffff;">Sair</a></p>
                 </div>
             </header>
         </div>
@@ -653,6 +653,8 @@
     </div>
 </template>
 <script>
+    import axios from 'axios';
+
     export default {
         data() {
             return {
@@ -666,6 +668,15 @@
             this.toggleMode();
         },
         methods: {
+
+            logout(){
+
+                axios.post('/api/logout').then(resp => {})  
+
+                localStorage.removeItem('auth_token')
+                this.$router.push({ name: 'Home' })
+            },
+
             toggleMode(mode) {
                 this.$appSetting.toggleMode(mode);
             },

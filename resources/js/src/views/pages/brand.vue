@@ -133,7 +133,8 @@
                 in_edit: false,
                 loadding: false,
                 table_option: { total_rows: 0, current_page: 1, page_size: 10, search_text: '' },
-                meta: {}
+                meta: {},
+                token: null,
             }
         },
         watch: {
@@ -147,6 +148,7 @@
         },
         created(){
             this.getBrands();
+            this.token = localStorage.getItem('auth_token');
         },
 
         methods: {
@@ -176,7 +178,12 @@
 
                     if(this.in_edit){
 
-                        axios.put('/api/marca/'+this.form.id, this.form)
+                        axios.put('/api/marca/'+this.form.id, this.form,{
+                                headers: {
+                                    'Authorization': `Bearer ${this.token}`
+                                }
+                            }
+                        )
                         .then(response => {
                             this.getBrands()
                             this.$bvModal.hide('exampleModalCenter')
@@ -187,15 +194,23 @@
 
                         })
                         .catch(error => {
-                            // Lidar com erros aqui
-                            console.error(error);
+
+                            if (error.response && error.response.status === 401) {
+                                this.$router.push({ name: 'login' });
+                            }
+
                             this.submit_form = false
                             this.loadding = false
-
                         });
 
                     }else{
-                        axios.post('/api/marca', this.form)
+                        this.token = localStorage.getItem('auth_token');
+
+                        axios.post('/api/marca', this.form,{
+                            headers: {
+                                'Authorization': `Bearer ${this.token}`
+                            }
+                        })
                         .then(response => {
                             this.getBrands()
                             this.$bvModal.hide('exampleModalCenter')
@@ -205,8 +220,11 @@
 
                         })
                         .catch(error => {
-                            // Lidar com erros aqui
-                            console.error(error);
+                  
+                            if (error.response && error.response.status === 401) {
+                                this.$router.push({ name: 'login' });
+                            }
+
                             this.submit_form = false
                             this.loadding = false
 
@@ -229,8 +247,13 @@
             },
 
             getBrands(){
-            
-                axios.get('/api/marca')
+
+                axios.get('/api/marca',{
+                        headers: {
+                            'Authorization': `Bearer ${this.token}`
+                        }
+                    }
+                )
                 .then(response => {
                     // Manipular a resposta aqui
                     console.log(response.data.data);
@@ -238,8 +261,11 @@
                     this.bind_data();
                 })
                 .catch(error => {
-                    // Lidar com erros aqui
-                    console.error(error);
+
+                    if (error.response && error.response.status === 401) {
+                        this.$router.push({ name: 'login' });
+                    }
+                    
                 });
             },
             bind_data() {
@@ -263,6 +289,9 @@
                         this.refresh_table(this.items.length);
                     })
                     .catch(error => {
+                        if (error.response && error.response.status === 401) {
+                            this.$router.push({ name: 'login' });
+                        }
                         this.$swal({
                             title: 'Erro ao excluir marca. Excluir modelos cadastrados para essa marca.',
                             padding: '2em'
