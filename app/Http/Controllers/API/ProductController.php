@@ -29,20 +29,23 @@ class ProductController extends Controller
 
             $arrBase64 = [];
 
-            foreach($product['images'] as $img){
-                $imageData = file_get_contents($img['url']);  // Supondo que 'url' seja o campo correto
-
-                // Converter dados de imagem para base64
-                $base64 = base64_encode($imageData);
-
-                // Detectar o tipo de conteúdo da imagem
-                $finfo = new finfo(FILEINFO_MIME_TYPE);
-                $mimeType = $finfo->buffer($imageData);
-
-                // Criar a string base64 completa
-                $base64Image = 'data:' . $mimeType . ';base64,' . $base64;
-                $arrBase64[] = ['url' => $base64Image];
+            if(isset($product['images'])){
+                foreach($product['images'] as $img){
+                    $imageData = file_get_contents($img['url']);  // Supondo que 'url' seja o campo correto
+    
+                    // Converter dados de imagem para base64
+                    $base64 = base64_encode($imageData);
+    
+                    // Detectar o tipo de conteúdo da imagem
+                    $finfo = new finfo(FILEINFO_MIME_TYPE);
+                    $mimeType = $finfo->buffer($imageData);
+    
+                    // Criar a string base64 completa
+                    $base64Image = 'data:' . $mimeType . ';base64,' . $base64;
+                    $arrBase64[] = ['url' => $base64Image];
+                }
             }
+           
 
             $product['images_base'] = $arrBase64;
             return $product;
