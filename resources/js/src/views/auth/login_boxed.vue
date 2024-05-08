@@ -50,8 +50,8 @@
             return { 
 
                 form:{
-                    email: "admin@teste.com.br",
-                    password: "Adm147852"
+                    email: "",
+                    password: ""
                 },
 
                 pwd_type: 'password' 
