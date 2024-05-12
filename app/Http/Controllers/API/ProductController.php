@@ -20,6 +20,26 @@ class ProductController extends Controller
         return response()->json(['data' => $products, 'success' => true]);
     }
 
+    public function getProductsBySale()
+    {
+        $products = db::select("
+            SELECT 
+                item.id AS lot_item_id,
+                pro.name AS product_name,
+                pro.id AS product_id
+            FROM products pro
+                INNER JOIN lot_items item
+                    ON item.product_id = pro.id
+                LEFT JOIN sales sl
+                    ON sl.lot_item_id = item.id
+            WHERE
+                sl.id IS NULL
+        ");
+
+        return response()->json(['data' => $products, 'success' => true]);
+
+    }
+
     public function getProductBySerialNumber($serial_number){
         $products = Product::where('serial_number_token', $serial_number)->with('images')->first();
 

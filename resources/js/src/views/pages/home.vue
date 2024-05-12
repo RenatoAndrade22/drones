@@ -61,6 +61,11 @@
                                     <b>Lote:</b> {{ product.model.lot }} <br />
                                   
                                     <b>Data de garantia:</b> {{ product.warranty_date_format }} <br />
+                                    <span v-if="product.enterprise_name">
+                                        <b>Empresa: {{ product.enterprise_name }}</b><br>
+                                        <b>CNPJ: {{ product.enterprise_cnpj }}</b>
+                                    </span>
+                                    
                                 </p>
         
                                 <p style="color: #fff; font-size:21px; margin-left:15px;">

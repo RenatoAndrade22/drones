@@ -430,7 +430,6 @@
                     { key: 'brand_name', label: 'Marca' },
                     { key: 'model_name', label: 'Modelo' },
                     { key: 'warranty_date_format', label: 'Garantia' },
-                    { key: 'serial_number_token', label: 'Número de série token' },
                     { key: 'action', label: 'Ações', class: 'actions text-center' }
                 ];
         
