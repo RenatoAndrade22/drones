@@ -24,16 +24,20 @@ class ProductController extends Controller
     {
         $products = db::select("
             SELECT 
-                item.id AS lot_item_id,
+                pro.id AS product_id,
                 pro.name AS product_name,
-                pro.id AS product_id
+                MIN(item.id) AS lot_item_id,
+                COUNT(item.serial_number_token) AS qnt_items
             FROM products pro
-                INNER JOIN lot_items item
-                    ON item.product_id = pro.id
-                LEFT JOIN sales sl
-                    ON sl.lot_item_id = item.id
+            INNER JOIN lot_items item
+                ON item.product_id = pro.id
+            LEFT JOIN sales_items sl
+                ON sl.lot_item_id = item.id
             WHERE
                 sl.id IS NULL
+            GROUP BY 
+                pro.id, 
+                pro.name
         ");
 
         return response()->json(['data' => $products, 'success' => true]);

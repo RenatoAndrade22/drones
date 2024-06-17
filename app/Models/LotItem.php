@@ -32,7 +32,7 @@ class LotItem extends Model
 
     public function sale() : HasOne
     {
-        return $this->hasOne(Sale::class);
+        return $this->hasOne(SalesItem::class);
     }
 
     public function getDateFormatAttribute()

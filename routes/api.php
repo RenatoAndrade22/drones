@@ -7,6 +7,7 @@ use App\Http\Controllers\API\LotController;
 use App\Http\Controllers\API\ModelController;
 use App\Http\Controllers\API\ProductController;
 use App\Http\Controllers\API\SaleController;
+use App\Http\Controllers\API\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -34,6 +35,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::resource('/marca', BrandController::class);
     Route::resource('/modelo', ModelController::class);
     Route::resource('/enterprise', EnterpriseController::class);
+    Route::resource('/user', UserController::class);
     Route::resource('/lot', LotController::class);
     Route::resource('/sale', SaleController::class);
     Route::post('produto-update/{id}', [ProductController::class, 'update']);

@@ -33,20 +33,33 @@
                                             </div>
 
                                             <div class="col-md-12 mb-4">
-                                                <label for="fullName">Produto</label>
 
-                                                <multiselect 
-                                                    :class="[submit_form ? (form.product ? 'is-valid' : 'is-invalid') : '']" 
-                                                    v-model="form.product" 
-                                                    :options="products" 
-                                                    :searchable="true" 
-                                                    placeholder="Selecione o produto" 
-                                                    selected-label="product_name" 
-                                                    select-label="product_name" 
-                                                    label="product_name"
-                                                ></multiselect>
-                                                
-                                                <b-form-invalid-feedback :class="{'d-block' : submit_form && !form.product}">Informe o produto</b-form-invalid-feedback>
+                                                <label for="fullName">Produtos</label>
+
+                                                <div class="select-product mt-2"  v-for="(p, i) in form.products">
+
+                                                    <multiselect 
+                                                        :key="i"
+                                                        v-model="p.product" 
+                                                        :options="listProducts" 
+                                                        :searchable="true" 
+                                                        placeholder="Selecione o produto" 
+                                                        selected-label="product_name" 
+                                                        select-label="product_name" 
+                                                        label="product_name"
+                                                    ></multiselect>
+
+                                                    <b-input min="0" @change="maxProducts(p, i)" style="width: 140px;" maxlength="10"  max="10" v-model="p.qnt" class="mt-2" size="sm" placeholder="Quantidade" type="number" />
+
+                                                </div>
+
+                                                <div class="d-block invalid-feedback" v-if="empty_product">Informe um produto</div>
+
+
+                                                <b-button @click="addProduct" type="button" variant="outline-primary" class="mt-2">
+                                                    Adicionar mais produtos
+                                                </b-button>
+
                                             </div>
                                           
                                         </b-form-row>
@@ -58,8 +71,26 @@
                                         </b-button>
                                         <span v-if="form_error" style="color:red;">Erro ao registrar.</span>
                                 </b-form>
-                                
+
                             </b-modal>
+
+
+                            <b-modal :hide-footer="true" id="view_sale_modal" title="Detalhes da venda" centered>
+                                <div v-if="sale_view" class="row layout-top-spacing">
+
+                                    <div class="col-12">
+                                        <h5>Cliente: {{ sale_view.enterprise.name }}</h5>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <b-table emptyText="" ref="basic_table" responsive hover :items="sale_view.sale_items" :fields="columns_sales" :per-page="table_option.page_size" :current-page="table_option.current_page" >
+
+                                        </b-table>
+                                    </div>
+                                    
+                                </div>
+                            </b-modal>
+
 
                             <div class="d-flex align-items-center">
                                 
@@ -100,6 +131,25 @@
                                     </li>
                                     -->
                                     
+                                    <li>
+                                        <a @click="view_sale(row.item)" href="javascript:void(0);" v-b-tooltip title="Detalhes da venda">
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                width="24"
+                                                height="24"
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                stroke-width="2"
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                class="feather feather-eye"
+                                            >
+                                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                                <circle cx="12" cy="12" r="3"></circle>
+                                            </svg>
+                                        </a>
+                                    </li>
                                     <li>
                                         <a @click="delete_row(row.item)" href="javascript:void(0);" v-b-tooltip title="Excluir"
                                             ><svg
@@ -157,17 +207,20 @@
     import axios from 'axios';
     import Multiselect from 'vue-multiselect'
     import 'vue-multiselect/dist/vue-multiselect.min.css';
+    import collect from 'collect.js';
 
     import '@/assets/sass/tables/table-basic.scss';
 
     export default {
         metaInfo: { title: 'Vendas' },
         components: {
-            Multiselect
+            Multiselect,
+            collect
         },
         data() {
             return {
                 items: [], columns: [],
+                columns_sales: [],
                 form: this.resetForm(),
                 submit_form: false,
                 in_edit: false,
@@ -176,8 +229,9 @@
                 meta: {},
                 products: [],
                 enterprises: [],
+                sale_view: null,
                 form_error: false,
-
+                empty_product: false,
             }
         },
         watch: {
@@ -195,11 +249,52 @@
             this.getEnterprises()
         },
 
+        computed:{
+            listProducts(){
+
+                let products = this.products
+
+                products = collect(products).map(item=>{
+
+                    item.product_name = '('+item.qnt_items+') '+item.product_name
+
+                    return item
+                })
+
+                return products.all()
+            }
+        },
+
         methods: {
+
+            view_sale(sale) {
+                console.log('sale', sale)
+                this.sale_view = sale
+                
+                this.$bvModal.show('view_sale_modal')
+
+            },
+
+            maxProducts(p, i){
+
+                if(p.product.qnt_items < this.form.products[i].qnt) {
+                    this.form.products[i].qnt = p.product.qnt_items
+                }
+                
+            },
+
+            addProduct(){
+                this.form.products.push({product: null, qnt: null})
+            },
 
             resetForm(){
                 return {
-                    product: null,
+                    products: [
+                        {
+                            product: null,
+                            qnt: null,
+                        }
+                    ],
                     enterprise: null,
                     enterprise_id: null,
                     lot_item_id: null
@@ -220,14 +315,15 @@
             record(){
 
                 this.submit_form = true
+
+
                 this.loadding = true
 
+                console.log('form', this.form)
                 if(this.validation()){
 
-                    console.log('form',  this.form)
-
                     this.form.enterprise_id = this.form.enterprise.id
-                    this.form.lot_item_id = this.form.product.lot_item_id
+                    //this.form.lot_item_id = this.form.product.lot_item_id
 
                     if(this.in_edit){
 
@@ -239,20 +335,19 @@
                             this.submit_form = false
                             this.is_edit = false
                             this.loadding = false
-
+                            this.getProducts()
                         })
                         .catch(error => {
-                            // Lidar com erros aqui
                             this.loadding = false
                             this.submit_form = false
                             this.form_error = false
-
                         });
 
                     }else{
                         axios.post('/api/sale', this.form)
                         .then(response => {
                             this.getSales()
+                            this.getProducts()
                             this.$bvModal.hide('exampleModalCenter')
                             this.form = this.resetForm()
                             this.submit_form = false
@@ -270,18 +365,27 @@
                 }else{
                     this.loadding = false
                 }
+
             },
 
             validation(){
                 
                 let i = true
 
-                if(!this.form.product)
-                    i = false
-                
                 if(!this.form.enterprise)
                     i = false
 
+                let p = collect(this.form.products).filter((item)=>{
+                    return item.qnt && item.qnt > 0
+                }).all()
+
+                if(p.length == 0) {
+                    i = false
+                    this.empty_product = true
+                }else{
+                    this.empty_product = false
+                }
+                
                 return i
 
             },
@@ -293,7 +397,7 @@
                 axios.get('/api/sale')
                 .then(response => {
                     // Manipular a resposta aqui
-                    console.log(response.data.data)
+
                     this.items = response.data.data
                     this.bind_data()
                 })
@@ -328,12 +432,17 @@
 
             bind_data() {
                 this.columns = [
+                    { key: 'id', label: 'ID' },
                     { key: 'enterprise.name', label: 'Empresa' },
-                    { key: 'lot_item.product.name', label: 'Drone' },
                     { key: 'date_format', label: 'Data' },
                     { key: 'action', label: 'Ações', class: 'actions text-center' }
                 ];
 
+                this.columns_sales = [
+                    { key: 'lot_item_id', label: 'Lote ID' },
+                    { key: 'lot_item.product.name', label: 'Produto' },
+                    { key: 'lot_item.serial_number_token', label: 'Número de série' },
+                ];
                 this.table_option.total_rows = this.items.length;
                 this.get_meta();
             },
@@ -341,13 +450,14 @@
                 this.refresh_table(filtered_items.length);
             },
             delete_row(item) {
-                console.log('excluir', item)
-                if (confirm('Deseja excluir venda do produto '+item.lot_item.product.name+', para a empresa '+item.enterprise.name+'?')) {
+
+                if (confirm('Deseja excluir venda para a empresa '+item.enterprise.name+'?')) {
 
                     axios.delete('/api/sale/'+item.id)
                     .then(response => {
                         this.items = this.items.filter(d => d.id != item.id);
                         this.refresh_table(this.items.length);
+                        this.getProducts()
                     })
                     .catch(error => {
                         
@@ -396,3 +506,10 @@
         }
     };
 </script>
+
+<style>
+.select-product{
+    border: 1px solid #dee2e6;
+    padding: 15px;
+}
+</style>

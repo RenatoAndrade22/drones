@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Helpers\Evita13Helper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LotRequest;
 use App\Models\Lot;
@@ -9,12 +10,30 @@ use App\Models\LotItem;
 use App\Models\Product;
 use finfo;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use Endroid\QrCode\Builder\Builder;
+use Endroid\QrCode\Writer\PngWriter;
 
 class LotController extends Controller
 {
     public function index()
     {
         $lots = LotItem::with(['lot', 'product'])->orderBy('id', 'desc')->get();
+
+        $lots = $lots->map(function ($item) {
+            $result = Builder::create()
+                ->data(env('APP_URL').$item['serial_number_token'])
+                ->writer(new PngWriter())
+                ->size(500)
+                ->build();
+        
+            $qrCodeBase64 = base64_encode($result->getString());
+            $item['qrcode'] = 'data:image/png;base64,' . $qrCodeBase64;
+        
+            return $item;
+        });
+
         return response()->json(['data' => $lots, 'success' => true]);
     }
 
@@ -56,12 +75,28 @@ class LotController extends Controller
                 
                 return $product;
             });
-
         }
 
-        if(isset($products[0])){
-            $products[0]['enterprise_name'] = isset($lot_item->sale->enterprise->name) ? $lot_item->sale->enterprise->name : null;
-            $products[0]['enterprise_cnpj'] = isset($lot_item->sale->enterprise->cnpj) ? $lot_item->sale->enterprise->cnpj : null;
+
+
+        $sale = db::select("
+            SELECT 
+                ent.name AS enterprise_name,
+                ent.cnpj AS enterprise_cnpj
+            FROM lot_items item
+                LEFT JOIN sales_items s_item
+                    ON s_item.lot_item_id = item.id
+                LEFT JOIN sales sale
+                    ON sale.id = s_item.sale_id
+                LEFT JOIN enterprises ent
+                    ON ent.id = sale.enterprise_id
+            WHERE
+                item.id = ".$lot_item->id."
+        ");
+
+        if($sale && isset($products[0])){
+            $products[0]['enterprise_name'] = $sale[0]->enterprise_name;
+            $products[0]['enterprise_cnpj'] = $sale[0]->enterprise_cnpj;
         }
 
         return response()->json(['data' => $products, 'success' => true]);
@@ -70,7 +105,6 @@ class LotController extends Controller
 
     public function store(LotRequest $request)
     {
-
         $qnt_products = $request->get('qnt_products');
 
         $lot = new Lot();
@@ -85,9 +119,14 @@ class LotController extends Controller
             $lotItem->product_id = $lot->product_id;
             $lotItem->serial_number_token = $this->generateSerialToken();
             $lotItem->save();
+
+            Evita13Helper::updateAutoIncrement('lot_items', $lotItem->id);
         }
 
+        Evita13Helper::updateAutoIncrement('lots', $lot->id);
+
         return response()->json(['success' => true]);
+
     }
 
     public function update(Request $request, $id)

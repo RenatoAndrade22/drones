@@ -25,7 +25,7 @@ class SaleRequest extends FormRequest
     {
         return [
             'enterprise_id' => 'required',
-            'lot_item_id' => 'required'
+            'products' => 'required',
         ];
     }
 

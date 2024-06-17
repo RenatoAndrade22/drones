@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Sale extends Model
 {
@@ -16,9 +17,9 @@ class Sale extends Model
 
     protected $with = ['enterprise'];
 
-    public function lot_item() : BelongsTo
+    public function saleItems() : HasMany
     {
-        return $this->belongsTo(LotItem::class);
+        return $this->hasMany(salesItem::class);
     }
 
     public function enterprise() : BelongsTo

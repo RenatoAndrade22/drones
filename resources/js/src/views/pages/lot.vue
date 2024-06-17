@@ -67,9 +67,11 @@
 
                         <b-table emptyText="Nenhum lote encontrado." ref="basic_table" responsive hover :items="items" :fields="columns" :per-page="table_option.page_size" :current-page="table_option.current_page" :filter="table_option.search_text"
                                 :show-empty="true" @filtered="on_filtered">
-                            <template #cell(salary)="row">
-                                ${{row.item.salary}}
+                      
+                            <template #cell(qrcode)="row">
+                                <b-button variant="primary" class="mr-2" @click="downloadQrCode(row.item.qrcode)">Download</b-button>
                             </template>
+                            
                             <template #cell(action)="row">
                               
                                 <ul class="table-controls">
@@ -187,6 +189,20 @@
         },
 
         methods: {
+
+            downloadQrCode(qrcode){
+                // Cria um elemento de link temporário
+                const link = document.createElement('a');
+                link.href = qrcode; // Define o href como o qrcode em base64
+                link.download = 'qrcode.png'; // Nome do arquivo a ser baixado
+
+                // Adiciona o link ao DOM, clica nele para iniciar o download e remove-o em seguida
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                console.log('qrcode', qrcode)
+
+            },
 
             resetForm(){
                 return {
@@ -308,10 +324,12 @@
 
             bind_data() {
                 this.columns = [
+                    { key: 'id', label: 'ID' },
                     { key: 'lot.name', label: 'Nome do lote' },
                     { key: 'product.name', label: 'Drone' },
                     { key: 'date_format', label: 'Data' },
                     { key: 'serial_number_token', label: 'Token QRcode' },
+                    { key: 'qrcode', label: 'QRcode' },
                     { key: 'action', label: 'Ações', class: 'actions text-center' }
                 ];
 

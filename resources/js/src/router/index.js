@@ -8,6 +8,7 @@ import Sales from '../views/pages/sales.vue';
 import Model from '../views/pages/model.vue';
 import Product from '../views/pages/product.vue';
 import Home from '../views/pages/home.vue';
+import User from '../views/pages/user.vue';
 import store from '../store';
 
 Vue.use(VueRouter);
@@ -27,6 +28,7 @@ const routes = [
     { path: '/painel/empresas', name: 'Enterprise', component: Enterprise,  meta: { auth: true } },
     { path: '/painel/lotes', name: 'Lotes', component: Lot,  meta: { auth: true } },
     { path: '/painel/vendas', name: 'Vendas', component: Sales,  meta: { auth: true } },
+    { path: '/painel/usuarios', name: 'Usuarios', component: User,  meta: { auth: true } },
     { path: '/', name: 'Home', component: Home, meta: { layout: 'auth' } },
     { path: '/*', name: 'Home-pdf', component: Home, meta: { layout: 'auth' } },
 
