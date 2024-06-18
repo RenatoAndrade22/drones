@@ -82,7 +82,7 @@
                                         ></a>
                                     </li>
                                     <li>
-                                        <a @click="delete_row(row.item)" href="javascript:void(0);" v-b-tooltip title="Excluir"
+                                        <a @click="delete_row(row.item)" v-if="row.item.name != 'Admin'" href="javascript:void(0);" v-b-tooltip title="Excluir"
                                             ><svg
                                                 xmlns="http://www.w3.org/2000/svg"
                                                 width="24"
