@@ -7,7 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\SaleRequest;
 use App\Models\LotItem;
 use App\Models\Sale;
-use App\Models\salesItem;
+use App\Models\SalesItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -42,7 +42,7 @@ class SaleController extends Controller
 
             foreach( $lots as $lot ) {
                 
-                $saleItem = new salesItem();
+                $saleItem = new SalesItem();
                 $saleItem->sale_id = $sale->id;
                 $saleItem->lot_item_id = $lot->id;
                 $saleItem->save();
@@ -61,7 +61,7 @@ class SaleController extends Controller
         $sale = Sale::find($id);
 
         if($sale){
-            salesItem::query()->where('sale_id', $sale->id)->delete();
+            SalesItem::query()->where('sale_id', $sale->id)->delete();
             $sale->delete();            
         }else{
             $sale = false;
