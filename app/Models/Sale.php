@@ -19,7 +19,7 @@ class Sale extends Model
 
     public function saleItems() : HasMany
     {
-        return $this->hasMany(salesItem::class);
+        return $this->hasMany(SalesItem::class);
     }
 
     public function enterprise() : BelongsTo
